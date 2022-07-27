@@ -1,17 +1,23 @@
 import React, { useRef } from "react";
 import "./App.css";
 import QuestionCard from "./components/QuestionCard";
+import useWindowSize from "react-use/lib/useWindowSize";
 import he from "he";
 import { nanoid } from "nanoid";
+import Confetti from "react-confetti";
 //import StartingScreen from "./components/Starting";
 
 //Trivia api: https://opentdb.com/api.php?amount=5&category=9&difficulty=medium&type=multiple
 
 function App() {
+  const { width, height } = useWindowSize();
+  console.log(width, height);
   const [questionsApi, setApiQuestions] = React.useState([]);
   const [questions, setQuestions] = React.useState([]);
   const [isEnded, setIsEnded] = React.useState(false);
   const [isStarted, setIsStarted] = React.useState(false);
+  const [playAgain, setPlayAgain] = React.useState(false);
+  const allAnsweredTrue = useRef(false);
 
   var correct_answer_array = useRef([]);
 
@@ -25,21 +31,21 @@ function App() {
     );
   }
 
+  console.log(questions);
+
   //Fetch question from trivia api
   React.useEffect(() => {
     function fetchFunc() {
       fetch("https://opentdb.com/api.php?amount=5&category=9&difficulty=medium&type=multiple")
         .then((res) => res.json())
         .then((data) => {
-          if (questionsApi.length === 0) {
-            setApiQuestions(data.results);
-          }
+          setApiQuestions(data.results);
         });
     }
 
     fetchFunc();
     // eslint-disable-next-line
-  }, []);
+  }, [playAgain]);
 
   //start once api arrived
   React.useEffect(() => {
@@ -72,6 +78,8 @@ function App() {
                 answers={createAnswersArray(he.decode(q.correct_answer), q.incorrect_answers)}
                 handleClick={handleClickOnAnswer}
                 currentSelected=""
+                correctAnswer={he.decode(q.correct_answer)}
+                isEnded={false}
               />
             ),
             heldAnswer: "",
@@ -89,10 +97,6 @@ function App() {
     //check if every question checked + check answers
     //if not return
     questions.forEach((element) => {
-      var answer = element.heldAnswer;
-      if (answer === "") {
-        return;
-      }
       if (element.heldAnswer === correct_answer_array.current[questions.indexOf(element)]) {
         correct_answer_count++;
       }
@@ -102,24 +106,51 @@ function App() {
       return;
     }
 
+    if (correct_answer_count === answer_count) {
+      allAnsweredTrue.current = true;
+    }
+
+    //set questions isEnded true
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((question) => ({
+        questionElement: { ...question.questionElement, props: { ...question.questionElement.props, isEnded: true, isEmpty: question.heldAnswer === "" ? true : false } },
+        heldAnswer: question.heldAnswer,
+      }))
+    );
     setIsEnded({ isEnded: true, correctAnswerCount: correct_answer_count, answerCount: answer_count });
+  }
+
+  function playAgainFunction() {
+    setPlayAgain((playAgain) => !playAgain);
+    setIsStarted(false);
+    setIsEnded(false);
+    allAnsweredTrue.current = false;
   }
 
   return (
     <div className="quiz">
       <div className="question-container">
-        <h1 className="quiz-header">Quizzle</h1>
-        {questions.map((question) => question.questionElement)}
-        {isEnded.isEnded && (
+        <h1 className="quiz-header">Quizia</h1>
+
+        {isStarted && questions.map((question) => question.questionElement)}
+        {isStarted && isEnded.isEnded && (
           <h3 className="end-text">
             You scored <span style={{ color: "#94D7A2" }}>{isEnded.correctAnswerCount}</span>/{isEnded.answerCount} correct answers.
           </h3>
         )}
-        {isStarted && (
+
+        {isStarted && !isEnded.isEnded && (
           <button className="question-submit" onClick={submitAnswers}>
             Check Answers!
           </button>
         )}
+
+        {isStarted && isEnded.isEnded && (
+          <button className="question-submit" onClick={playAgainFunction}>
+            Play Again!
+          </button>
+        )}
+        {allAnsweredTrue.current && <Confetti width={width} height={height} />}
       </div>
     </div>
   );
