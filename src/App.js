@@ -11,7 +11,6 @@ import Confetti from "react-confetti";
 
 function App() {
   const { width, height } = useWindowSize();
-  console.log(width, height);
   const [questionsApi, setApiQuestions] = React.useState([]);
   const [questions, setQuestions] = React.useState([]);
   const [isEnded, setIsEnded] = React.useState(false);
@@ -30,8 +29,6 @@ function App() {
       )
     );
   }
-
-  console.log(questions);
 
   //Fetch question from trivia api
   React.useEffect(() => {
