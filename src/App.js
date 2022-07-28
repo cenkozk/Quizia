@@ -103,8 +103,6 @@ function App() {
       return;
     }
 
-    console.log(correct_answer_array.current);
-
     if (correct_answer_count === answer_count) {
       allAnsweredTrue.current = true;
     }
