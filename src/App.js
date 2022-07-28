@@ -18,7 +18,7 @@ function App() {
   const [playAgain, setPlayAgain] = React.useState(false);
   const allAnsweredTrue = useRef(false);
 
-  var correct_answer_array = useRef([]);
+  const correct_answer_array = useRef([]);
 
   function handleClickOnAnswer(questionId, buttonId, answer) {
     setQuestions((prevQuestions) =>
@@ -103,6 +103,8 @@ function App() {
       return;
     }
 
+    console.log(correct_answer_array.current);
+
     if (correct_answer_count === answer_count) {
       allAnsweredTrue.current = true;
     }
@@ -122,6 +124,7 @@ function App() {
     setIsStarted(false);
     setIsEnded(false);
     allAnsweredTrue.current = false;
+    correct_answer_array.current = [];
   }
 
   return (
