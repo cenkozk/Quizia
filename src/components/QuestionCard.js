@@ -33,9 +33,10 @@ export default function QuestionCard(props) {
 
     answersArray = answersArray.map((answer) => {
       var id = buttonIds.current[props.answers.indexOf(answer)];
-      var className = props.currentSelected === id ? (he.decode(answer) === props.correctAnswer ? "correct-card-answers" : "incorrect-card-answers") : "u-card-answers";
+      className = !props.isEmpty ? (he.decode(answer) === props.correctAnswer ? "empty-card-answers" : "u-card-answers") : "u-card-answers";
+      var className = props.currentSelected === id ? (he.decode(answer) === props.correctAnswer ? "correct-card-answers" : "incorrect-card-answers") : className;
       //if answer empty by user select correct one
-      className = props.isEmpty ? (he.decode(answer) === props.correctAnswer ? "empty-card-answers" : "card-answers") : className;
+      className = props.isEmpty ? (he.decode(answer) === props.correctAnswer ? "empty-card-answers" : "u-card-answers") : className;
       return (
         <button
           key={id}
